@@ -42,7 +42,7 @@ def make_model(X_train, y_train, epochs=5, batch_size=32):
     return regressor
 
 
-def train(returns, labels, ticker="ABBA", length=240):
+def train(returns, labels, ticker="ABBA", length=3):
     """Train an LSTM model."""
     series = returns[ticker]
     label = labels[ticker]
