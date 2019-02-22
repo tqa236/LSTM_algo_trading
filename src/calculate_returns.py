@@ -1,23 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Train a LSTM model."""
+"""Calculate returns and labels."""
 
-import os
 import argparse
 import pandas as pd
 import numpy as np
-
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-# The GPU id to use, usually either "0" or "1";
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 
 def calculate_class(returns):
     """Find the class for each LSTM sequence based on the median returns."""
     median_returns = returns.median(axis=1)
-    labels = returns.iloc[:, :-
-                          1].apply(lambda x: np.where(x >= median_returns, 1, 0),
-                                   axis=0)
+    labels = returns.iloc[:, :-1].apply(lambda x: np.where
+                                        (x >= median_returns, 1, 0), axis=0)
     return labels
 
 
