@@ -12,8 +12,8 @@ def download_data(metadata_df, API=None):
             quandl.ApiConfig.api_key = API
             mydata = quandl.get(symbol)
             mydata.to_csv("../data/frankfurt/stocks_tmp/" + ticker + ".csv")
-        except:
-            pass
+        # except:
+        #     pass
 
 
 def main():
