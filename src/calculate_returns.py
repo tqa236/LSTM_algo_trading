@@ -3,8 +3,9 @@
 """Calculate returns and labels."""
 
 import argparse
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 
 
 def calculate_class(returns):
@@ -17,12 +18,12 @@ def calculate_class(returns):
 
 def calculate_returns(stocks):
     """Calculate the returns of all indices."""
-    stocks = stocks[["High", "Name"]]
+    stocks = stocks[["Close", "Name"]]
     stocks = stocks.pivot_table(
-        values='High', index=stocks.index, columns='Name', aggfunc='first')
-    returns = (stocks - stocks.shift(1))/stocks.shift(1)
+        values='Close', index=stocks.index, columns='Name', aggfunc='first')
+    returns = (stocks - stocks.shift(1)) / stocks.shift(1)
     returns = returns.dropna()
-    returns = (returns - returns.mean())/returns.std()
+    returns = (returns - returns.mean()) / returns.std()
 
     return returns
 
@@ -40,9 +41,9 @@ def main():
     dataset = pd.read_csv(args.indir, index_col='Date',
                           parse_dates=['Date'])
     returns = calculate_returns(dataset)
-    returns.to_csv("../model/dowjones/returns.csv")
+    returns.to_csv("../data/dowjones_calculated/returns.csv")
     labels = calculate_class(returns)
-    labels.to_csv("../model/dowjones/labels.csv")
+    labels.to_csv("../data/dowjones_calculated/labels.csv")
     print("Done.")
     return 0
 
