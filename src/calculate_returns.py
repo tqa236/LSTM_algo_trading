@@ -11,8 +11,8 @@ import pandas as pd
 def calculate_class(returns):
     """Find the class for each LSTM sequence based on the median returns."""
     median_returns = returns.median(axis=1)
-    labels = returns.iloc[:, :-1].apply(lambda x: np.where
-                                        (x >= median_returns, 1, 0), axis=0)
+    labels = returns.iloc[:, :].apply(lambda x: np.where
+                                      (x >= median_returns, 1, 0), axis=0)
     return labels
 
 
@@ -41,8 +41,10 @@ def main():
     dataset = pd.read_csv(args.indir, index_col='Date',
                           parse_dates=['Date'])
     returns = calculate_returns(dataset)
-    returns.to_csv("../data/dowjones_calculated/returns.csv")
     labels = calculate_class(returns)
+    print(f"Returns shape: {returns.shape}")
+    print(f"Labels shape: {labels.shape}")
+    returns.to_csv("../data/dowjones_calculated/returns.csv")
     labels.to_csv("../data/dowjones_calculated/labels.csv")
     print("Done.")
     return 0

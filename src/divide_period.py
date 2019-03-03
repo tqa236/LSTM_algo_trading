@@ -34,9 +34,15 @@ def main():
     args = parser.parse_args()
     returns = pd.read_csv(args.returns, index_col='Date',
                           parse_dates=['Date'])
-    labels = pd.read_csv(args.returns, index_col='Date',
+    labels = pd.read_csv(args.labels, index_col='Date',
                          parse_dates=['Date'])
     periods = divide_period(returns, labels)
+    print("Training set")
+    print(f"Returns shape for 1 period: {periods[0][0][0].shape}")
+    print(f"Labels shape for 1 period: {periods[0][0][1].shape}")
+    print("Test set")
+    print(f"Returns shape for 1 period: {periods[1][0][0].shape}")
+    print(f"Labels shape for 1 period: {periods[1][0][1].shape}")
 
     with open(args.outdir, "wb") as file:
         pickle.dump(periods, file)
