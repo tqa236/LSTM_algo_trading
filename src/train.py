@@ -2,81 +2,91 @@
 # -*- coding: utf-8 -*-
 """Train a LSTM model."""
 
-import os
 import argparse
-import pandas as pd
-import numpy as np
-from keras.models import Sequential
-from keras.layers import Dense, LSTM, Dropout
+import os
+import pickle
 
+import numpy as np
+from keras.activations import softmax
+from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.layers import LSTM, Dense, Lambda, Reshape
+from keras.models import Sequential
+from keras.preprocessing.sequence import TimeseriesGenerator
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 # The GPU id to use, usually either "0" or "1";
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 
-def make_model(X_train, y_train, epochs=5, batch_size=32):
+def get_one_hot(targets, nb_classes):
+    """Convert class array to one hot vector."""
+    res = np.eye(nb_classes)[np.array(targets).reshape(-1)]
+    return res.reshape(list(targets.shape) + [nb_classes])
+
+
+def train(dataset, model_name):
     """Train an LSTM model."""
-    # The LSTM architecture
-    regressor = Sequential()
-    # First LSTM layer with Dropout regularisation
-    regressor.add(LSTM(units=50, return_sequences=True,
-                       input_shape=(X_train.shape[1], 1)))
-    regressor.add(Dropout(0.2))
-    # Second LSTM layer
-    regressor.add(LSTM(units=50, return_sequences=True))
-    regressor.add(Dropout(0.2))
-    # Third LSTM layer
-    regressor.add(LSTM(units=50, return_sequences=True))
-    regressor.add(Dropout(0.2))
-    # Fourth LSTM layer
-    regressor.add(LSTM(units=50))
-    regressor.add(Dropout(0.2))
-    # The output layer
-    regressor.add(Dense(units=1))
+    for i in range(len(dataset[0])):
+        model_period = f"{model_name}_period{i}.h5"
+        X_train = dataset[0][i][0].values
+        y_train = dataset[0][i][1].values
+        # X_test = dataset[1][i][0].values
+        # y_test = dataset[1][i][1].values
+        y_train = get_one_hot(y_train, 2)
+        # y_test = get_one_hot(y_test, 2)
 
-    # Compiling the RNN
-    regressor.compile(optimizer='rmsprop', loss='mean_squared_error')
-    # Fitting to the training set
-    regressor.fit(X_train, y_train, epochs=epochs, batch_size=batch_size)
-    return regressor
+        train_gen = TimeseriesGenerator(X_train, y_train,
+                                        length=240, sampling_rate=1,
+                                        batch_size=510)
+        # test_gen = TimeseriesGenerator(X_test, y_test,
+        #                                length=240, sampling_rate=1,
+        #                                batch_size=250)
 
+        X_train = train_gen[0][0]
+        y_train = train_gen[0][1]
+        # X_test = test_gen[0][0]
+        # y_test = test_gen[0][1]
 
-def train(returns, labels, ticker="ABBA", length=3):
-    """Train an LSTM model."""
-    series = returns[ticker]
-    label = labels[ticker]
-    X = [series[i:i+length] for i in range(len(series) - length)]
-    y = label[ticker][length:]
-    X, y = np.array(X), np.array(y)
-    SPLIT = int(0.6 * len(X))
+        print(f"x train shape: {X_train.shape}")
+        print(f"y train shape: {y_train.shape}")
+        # print(f"x test shape: {X_test.shape}")
+        # print(f"y test shape: {y_test.shape}")
 
-    X_train = X[:SPLIT]
-    y_train = y[:SPLIT]
-    X_test = X[SPLIT:]
-    y_test = y[SPLIT:]
-    # Reshaping X_train for efficient modelling
-    X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
-    X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
+        # expected input data shape: (batch_size, timesteps, data_dim)
+        regressor = Sequential()
+        regressor.add(LSTM(units=10, input_shape=(
+            X_train.shape[1], X_train.shape[2]), dropout=0.1))
+        regressor.add(Dense(62, activation='relu'))
+        regressor.add(Reshape((31, 2)))
+        regressor.add(Lambda(lambda x: softmax(x, axis=-1)))
+        regressor.compile(loss='mean_squared_error',
+                          optimizer='rmsprop',
+                          metrics=['accuracy'])
+
+        regressor.fit(X_train, y_train, epochs=2, batch_size=10,
+                      validation_split=0.1,
+                      callbacks=[EarlyStopping(monitor='val_acc', patience=50),
+                                 ModelCheckpoint(filepath=model_period,
+                                                 monitor='val_acc',
+                                                 save_best_only=True)])
+
+        regressor.save(model_period)
 
 
 def main():
     """Run main program."""
     parser = argparse.ArgumentParser(
         description="Parse arguments for models.")
-    parser.add_argument("--returns", help="Dataset directory.",
-                        default="../model/dowjones/returns.csv")
-    parser.add_argument("--labels", help="Dataset directory.",
-                        default="../model/dowjones/returns.csv")
+    parser.add_argument("--dataset", help="Dataset directory.",
+                        default="../data/dowjones_calculated/periods.txt")
     parser.add_argument('--outdir', help='Model directory.',
-                        default="../model/dowjones/sample.csv")
+                        default='../model/LSTM/my_model1')
     args = parser.parse_args()
-    returns = pd.read_csv(args.returns, index_col='Date',
-                          parse_dates=['Date'])
-    labels = pd.read_csv(args.returns, index_col='Date',
-                         parse_dates=['Date'])
-    returns.to_csv("../model/dowjones/sample1.csv")
-    labels.to_csv("../model/dowjones/sample2.csv")
+
+    with open(args.dataset, "rb") as file:   # Unpickling
+        dataset = pickle.load(file)
+    train(dataset, args.outdir)
+
     print("Done.")
     return 0
 
