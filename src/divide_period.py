@@ -8,13 +8,14 @@ import pickle
 import pandas as pd
 
 
-def divide_period(returns, labels, train_length=750, test_length=250):
+def divide_period(returns, labels, train_length=750, test_length=250,
+                  timesteps=240):
     """Divide the data into period."""
     num_period = int((len(labels) - train_length) / test_length)
-    trains = [(returns[250 * i: 750 + 250 * i],
-               labels[250 * i: 750 + 250 * i]) for i in range(num_period)]
-    tests = [(returns[750 + 250 * i: 750 + 250 * (i + 1)],
-              labels[750 + 250 * i: 750 + 250 * (i + 1)])
+    trains = [(returns[test_length * i: train_length + test_length * i],
+               labels[test_length * i: train_length + test_length * i]) for i in range(num_period)]
+    tests = [(returns[train_length - timesteps + test_length * i: train_length + test_length * (i + 1)],
+              labels[train_length - timesteps + test_length * i: train_length + test_length * (i + 1)])
              for i in range(num_period)]
 
     return (trains, tests)
@@ -29,7 +30,7 @@ def main():
     parser.add_argument("--labels", help="Dataset directory.",
                         default="../data/dowjones_calculated/labels.csv")
     parser.add_argument('--outdir', help='Model directory.',
-                        default="../data/dowjones_calculated/periods.txt")
+                        default="../data/dowjones_calculated/periods1.txt")
 
     args = parser.parse_args()
     returns = pd.read_csv(args.returns, index_col='Date',
