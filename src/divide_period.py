@@ -13,9 +13,12 @@ def divide_period(returns, labels, train_length=750, test_length=250,
     """Divide the data into period."""
     num_period = int((len(labels) - train_length) / test_length)
     trains = [(returns[test_length * i: train_length + test_length * i],
-               labels[test_length * i: train_length + test_length * i]) for i in range(num_period)]
-    tests = [(returns[train_length - timesteps + test_length * i: train_length + test_length * (i + 1)],
-              labels[train_length - timesteps + test_length * i: train_length + test_length * (i + 1)])
+               labels[test_length * i: train_length + test_length * i])
+              for i in range(num_period)]
+    tests = [(returns[train_length - timesteps + test_length * i:
+                      train_length + test_length * (i + 1)],
+              labels[train_length - timesteps + test_length * i:
+                     train_length + test_length * (i + 1)])
              for i in range(num_period)]
 
     return (trains, tests)
@@ -47,8 +50,6 @@ def main():
 
     with open(args.outdir, "wb") as file:
         pickle.dump(periods, file)
-    # with open("test.txt", "rb") as fp:   # Unpickling
-    #     b = pickle.load(fp)
     print("Done.")
     return 0
 

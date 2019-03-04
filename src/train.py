@@ -63,7 +63,7 @@ def train(dataset, model_name):
                           optimizer='rmsprop',
                           metrics=['accuracy'])
 
-        regressor.fit(X_train, y_train, epochs=2, batch_size=10,
+        regressor.fit(X_train, y_train, epochs=100, batch_size=10,
                       validation_split=0.1,
                       callbacks=[EarlyStopping(monitor='val_acc', patience=50),
                                  ModelCheckpoint(filepath=model_period,
