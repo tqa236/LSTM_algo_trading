@@ -33,7 +33,7 @@ def main():
     parser.add_argument("--labels", help="Dataset directory.",
                         default="../data/dowjones_calculated/labels.csv")
     parser.add_argument('--outdir', help='Model directory.',
-                        default="../data/dowjones_calculated/periods1.txt")
+                        default="../data/dowjones_calculated/periods.txt")
 
     args = parser.parse_args()
     returns = pd.read_csv(args.returns, index_col='Date',
