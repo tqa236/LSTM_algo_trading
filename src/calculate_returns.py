@@ -24,6 +24,7 @@ def main():
                           parse_dates=['Date'])
     returns = calculate_returns(dataset)
     labels = calculate_class(returns)
+    # returns = (returns - returns.mean()) / returns.std()
     print(f"Returns shape: {returns.shape}")
     print(f"Labels shape: {labels.shape}")
     returns.to_csv("../data/dowjones_calculated/returns.csv")

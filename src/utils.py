@@ -46,5 +46,4 @@ def calculate_returns(stocks):
         values='Close', index=stocks.index, columns='Name', aggfunc='first')
     returns = (stocks - stocks.shift(1)) / stocks.shift(1)
     returns = returns.dropna()
-    # returns = (returns - returns.mean()) / returns.std()
     return returns
