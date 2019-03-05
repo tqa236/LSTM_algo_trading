@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Create a random strategy to pick the stocks."""
+"""Every function that need to be used more than one time."""
 
 import numpy as np
 
@@ -39,13 +39,12 @@ def calculate_class(returns):
     return labels
 
 
-def calculate_returns(stocks, normalize=False):
+def calculate_returns(stocks):
     """Calculate the real returns of all indices without normalization."""
     stocks = stocks[["Close", "Name"]]
     stocks = stocks.pivot_table(
         values='Close', index=stocks.index, columns='Name', aggfunc='first')
     returns = (stocks - stocks.shift(1)) / stocks.shift(1)
     returns = returns.dropna()
-    if normalize:
-        returns = (returns - returns.mean()) / returns.std()
+    # returns = (returns - returns.mean()) / returns.std()
     return returns

@@ -7,6 +7,7 @@ import os
 import pickle
 
 import numpy as np
+
 from keras.activations import softmax
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.layers import LSTM, Dense, Lambda, Reshape

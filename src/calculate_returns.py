@@ -7,6 +7,8 @@ import argparse
 import numpy as np
 import pandas as pd
 
+from utils import calculate_returns
+
 
 def calculate_class(returns):
     """Find the class for each LSTM sequence based on the median returns."""
@@ -16,24 +18,13 @@ def calculate_class(returns):
     return labels
 
 
-def calculate_returns(stocks):
-    """Calculate the returns of all indices."""
-    stocks = stocks[["Close", "Name"]]
-    stocks = stocks.pivot_table(
-        values='Close', index=stocks.index, columns='Name', aggfunc='first')
-    returns = (stocks - stocks.shift(1)) / stocks.shift(1)
-    returns = returns.dropna()
-    returns = (returns - returns.mean()) / returns.std()
-
-    return returns
-
-
 def main():
     """Run main program."""
     parser = argparse.ArgumentParser(
         description="Parse arguments for models.")
-    parser.add_argument("--indir", help="Dataset directory.",
-                        default="../data/dowjones/all_stocks_2006-01-01_to_2018-01-01.csv")
+    parser.add_argument(
+        "--indir", help="Dataset directory.",
+        default="../data/dowjones/all_stocks_2006-01-01_to_2018-01-01.csv")
 
     parser.add_argument('--outdir', help='Model directory.',
                         default="../model/dowjones/sample.csv")
