@@ -4,18 +4,9 @@
 
 import argparse
 
-import numpy as np
 import pandas as pd
 
-from utils import calculate_returns
-
-
-def calculate_class(returns):
-    """Find the class for each LSTM sequence based on the median returns."""
-    median_returns = returns.median(axis=1)
-    labels = returns.iloc[:, :].apply(lambda x: np.where
-                                      (x >= median_returns, 1, 0), axis=0)
-    return labels
+from utils import calculate_class, calculate_returns
 
 
 def main():

@@ -3,6 +3,7 @@
 """Create a random strategy to pick the stocks."""
 
 import argparse
+import time
 
 import numpy as np
 import pandas as pd
@@ -40,6 +41,7 @@ def random_trading(returns, k=10, start=750, end=3000, times=1):
 
 def main():
     """Run main program."""
+    start = time.time()
     parser = argparse.ArgumentParser(
         description="Parse arguments for models.")
     parser.add_argument(
@@ -52,11 +54,14 @@ def main():
     dataset = pd.read_csv(args.indir, index_col='Date',
                           parse_dates=['Date'])
     returns = calculate_returns(dataset)
-    results = random_trading(returns, times=100000)
+    times = 1000
+    results = random_trading(returns, times=times)
     pd.DataFrame(data=results).to_csv(
-        "../data/dowjones_calculated/random_trading.csv",
+        f"../data/dowjones_calculated/random_trading_{times}times.csv",
         sep=',', index=False, header=["No Rebalance", "Rebalance"])
     print("Done.")
+    end = time.time()
+    print(end - start)
     return 0
 
 
