@@ -4,6 +4,8 @@
 
 import numpy as np
 
+from keras.preprocessing.sequence import TimeseriesGenerator
+
 
 def generate_random_strategy(returns):
     """Generate a random probability tha"t a stock will beat the market."""
@@ -47,3 +49,21 @@ def calculate_returns(stocks):
     returns = (stocks - stocks.shift(1)) / stocks.shift(1)
     returns = returns.dropna()
     return returns
+
+
+def normalize_data(df):
+    """normalize a dataframe."""
+    mean = df.mean(axis=1)
+    std = df.std(axis=1)
+    df = df.sub(mean, axis=0)
+    df = df.div(std, axis=0)
+    df = df.values
+    return df
+
+
+def generate_time_series_sample(data, target, timestep):
+    """Generate samples of a time series with a certain length."""
+    generator = TimeseriesGenerator(data, target,
+                                    length=timestep, sampling_rate=1,
+                                    batch_size=(data.shape[0] - timestep))
+    return generator[0][0], generator[0][1]

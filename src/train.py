@@ -29,26 +29,26 @@ def train(dataset, model_name):
     """Train an LSTM model."""
     for i in range(len(dataset[0])):
         model_period = f"{model_name}_period{i}.h5"
-        X_train = dataset[0][i][0].values
+        x_train = dataset[0][i][0].values
         y_train = dataset[0][i][1].values
         # X_test = dataset[1][i][0].values
         # y_test = dataset[1][i][1].values
         y_train = get_one_hot(y_train, 2)
         # y_test = get_one_hot(y_test, 2)
 
-        train_gen = TimeseriesGenerator(X_train, y_train,
+        train_gen = TimeseriesGenerator(x_train, y_train,
                                         length=240, sampling_rate=1,
                                         batch_size=510)
         # test_gen = TimeseriesGenerator(X_test, y_test,
         #                                length=240, sampling_rate=1,
         #                                batch_size=250)
 
-        X_train = train_gen[0][0]
+        x_train = train_gen[0][0]
         y_train = train_gen[0][1]
         # X_test = test_gen[0][0]
         # y_test = test_gen[0][1]
 
-        print(f"x train shape: {X_train.shape}")
+        print(f"x train shape: {x_train.shape}")
         print(f"y train shape: {y_train.shape}")
         # print(f"x test shape: {X_test.shape}")
         # print(f"y test shape: {y_test.shape}")
@@ -56,7 +56,7 @@ def train(dataset, model_name):
         # expected input data shape: (batch_size, timesteps, data_dim)
         regressor = Sequential()
         regressor.add(LSTM(units=10, input_shape=(
-            X_train.shape[1], X_train.shape[2]), dropout=0.1))
+            x_train.shape[1], x_train.shape[2]), dropout=0.1))
         regressor.add(Dense(62, activation='relu'))
         regressor.add(Reshape((31, 2)))
         regressor.add(Lambda(lambda x: softmax(x, axis=-1)))
@@ -64,7 +64,7 @@ def train(dataset, model_name):
                           optimizer='rmsprop',
                           metrics=['accuracy'])
 
-        regressor.fit(X_train, y_train, epochs=100, batch_size=10,
+        regressor.fit(x_train, y_train, epochs=100, batch_size=10,
                       validation_split=0.1,
                       callbacks=[EarlyStopping(monitor='val_acc', patience=50),
                                  ModelCheckpoint(filepath=model_period,
