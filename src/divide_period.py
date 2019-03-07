@@ -29,9 +29,9 @@ def main():
     parser = argparse.ArgumentParser(
         description="Parse arguments for models.")
     parser.add_argument("--returns", help="Dataset directory.",
-                        default="../data/dowjones_calculated/returns.csv")
+                        default="../data/dowjones_calculated/returns1.csv")
     parser.add_argument("--labels", help="Dataset directory.",
-                        default="../data/dowjones_calculated/labels.csv")
+                        default="../data/dowjones_calculated/labels1.csv")
     parser.add_argument('--outdir', help='Model directory.',
                         default="../data/dowjones_calculated/periods1.txt")
 
@@ -40,7 +40,7 @@ def main():
                           parse_dates=['Date'])
     labels = pd.read_csv(args.labels, index_col='Date',
                          parse_dates=['Date'])
-    periods = divide_period(returns, labels, timesteps=3)
+    periods = divide_period(returns, labels, timesteps=240)
     print("Training set")
     print(f"Returns shape for 1 period: {periods[0][0][0].shape}")
     print(f"Labels shape for 1 period: {periods[0][0][1].shape}")

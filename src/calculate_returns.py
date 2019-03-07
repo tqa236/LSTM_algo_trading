@@ -29,10 +29,10 @@ def main():
     # returns = (returns - returns.mean()) / returns.std()
     print(f"Returns shape: {returns.shape}")
     print(f"Labels shape: {labels.shape}")
-    returns.to_csv("../data/dowjones_calculated/returns.csv")
-    labels.to_csv("../data/dowjones_calculated/labels.csv")
-    log_returns.to_csv("../data/dowjones_calculated/log_returns.csv")
-    log_labels.to_csv("../data/dowjones_calculated/log_labels.csv")
+    returns.to_csv("../data/dowjones_calculated/returns1.csv")
+    labels.to_csv("../data/dowjones_calculated/labels1.csv")
+    log_returns.to_csv("../data/dowjones_calculated/log_returns1.csv")
+    log_labels.to_csv("../data/dowjones_calculated/log_labels1.csv")
     print("Done.")
     return 0
 
