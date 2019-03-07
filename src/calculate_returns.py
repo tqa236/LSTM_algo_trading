@@ -6,7 +6,7 @@ import argparse
 
 import pandas as pd
 
-from utils import calculate_class, calculate_returns
+from utils import calculate_class, calculate_log_returns, calculate_returns
 
 
 def main():
@@ -23,12 +23,16 @@ def main():
     dataset = pd.read_csv(args.indir, index_col='Date',
                           parse_dates=['Date'])
     returns = calculate_returns(dataset)
+    log_returns = calculate_log_returns(dataset)
     labels = calculate_class(returns)
+    log_labels = calculate_class(log_returns)
     # returns = (returns - returns.mean()) / returns.std()
     print(f"Returns shape: {returns.shape}")
     print(f"Labels shape: {labels.shape}")
     returns.to_csv("../data/dowjones_calculated/returns.csv")
     labels.to_csv("../data/dowjones_calculated/labels.csv")
+    log_returns.to_csv("../data/dowjones_calculated/log_returns.csv")
+    log_labels.to_csv("../data/dowjones_calculated/log_labels.csv")
     print("Done.")
     return 0
 

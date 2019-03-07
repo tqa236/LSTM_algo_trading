@@ -19,11 +19,11 @@ def train(dataset, model_name, timestep=20):
 
         x_train, y_train = generate_time_series_sample(
             normalize_data(dataset[0][i][0]),
-            dataset[0][i][1].values, 20)
+            dataset[0][i][1].values, timestep)
 
         x_test, y_test = generate_time_series_sample(
             normalize_data(dataset[1][i][0]),
-            dataset[1][i][1].values, 20)
+            dataset[1][i][1].values, timestep)
 
         x_train = x_train.transpose((0, 2, 1))
         x_train = np.reshape(
@@ -70,7 +70,7 @@ def main():
 
     with open(args.dataset, "rb") as file:   # Unpickling
         dataset = pickle.load(file)
-    train(dataset, args.outdir)
+    train(dataset, args.outdir, 10)
 
     print("Done.")
     return 0

@@ -51,6 +51,17 @@ def calculate_returns(stocks):
     return returns
 
 
+def calculate_log_returns(stocks):
+    """Calculate the log returns of all indices without normalization."""
+    stocks = stocks[["Close", "Name"]]
+    stocks = stocks.pivot_table(
+        values='Close', index=stocks.index, columns='Name', aggfunc='first')
+    # returns = (stocks - stocks.shift(1)) / stocks.shift(1)
+    returns = np.log(stocks) - np.log(stocks.shift(1))
+    returns = returns.dropna()
+    return returns
+
+
 def normalize_data(df):
     """normalize a dataframe."""
     mean = df.mean(axis=1)
