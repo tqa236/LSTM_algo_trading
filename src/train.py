@@ -13,6 +13,7 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.layers import LSTM, Dense, Lambda, Reshape
 from keras.models import Sequential
 from keras.preprocessing.sequence import TimeseriesGenerator
+from utils import normalize_data
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 # The GPU id to use, usually either "0" or "1";
@@ -25,53 +26,52 @@ def get_one_hot(targets, nb_classes):
     return res.reshape(list(targets.shape) + [nb_classes])
 
 
-def train(dataset, model_name):
+def train(dataset, model_name, timestep=240):
     """Train an LSTM model."""
     for i in range(len(dataset[0])):
         model_period = f"{model_name}_period{i}.h5"
-        x_train = dataset[0][i][0].values
+        x_train = normalize_data(dataset[0][i][0])
         y_train = dataset[0][i][1].values
-        # X_test = dataset[1][i][0].values
-        # y_test = dataset[1][i][1].values
-        y_train = get_one_hot(y_train, 2)
-        # y_test = get_one_hot(y_test, 2)
+        x_test = normalize_data(dataset[1][i][0])
+        y_test = dataset[1][5][1].values
+
+        y_train = get_one_hot(y_train, 2) * 1.0
+        y_test = get_one_hot(y_test, 2) * 1.0
 
         train_gen = TimeseriesGenerator(x_train, y_train,
-                                        length=240, sampling_rate=1,
-                                        batch_size=510)
-        # test_gen = TimeseriesGenerator(X_test, y_test,
-        #                                length=240, sampling_rate=1,
-        #                                batch_size=250)
-
-        x_train = train_gen[0][0]
-        y_train = train_gen[0][1]
-        # X_test = test_gen[0][0]
-        # y_test = test_gen[0][1]
-
+                                        length=timestep, sampling_rate=1,
+                                        batch_size=64)
+        test_gen = TimeseriesGenerator(x_test, y_test,
+                                       length=timestep, sampling_rate=1,
+                                       batch_size=64)
+        print(f"Period {i}")
         print(f"x train shape: {x_train.shape}")
         print(f"y train shape: {y_train.shape}")
-        # print(f"x test shape: {X_test.shape}")
-        # print(f"y test shape: {y_test.shape}")
+        print(f"x test shape: {x_test.shape}")
+        print(f"y test shape: {y_test.shape}")
 
         # expected input data shape: (batch_size, timesteps, data_dim)
         regressor = Sequential()
-        regressor.add(LSTM(units=10, input_shape=(
-            x_train.shape[1], x_train.shape[2]), dropout=0.1))
+        regressor.add(LSTM(units=25, return_sequences=True,
+                           input_shape=(timestep, 31), dropout=0.1))
+        regressor.add(LSTM(25, dropout=0.1))
         regressor.add(Dense(62, activation='relu'))
         regressor.add(Reshape((31, 2)))
         regressor.add(Lambda(lambda x: softmax(x, axis=-1)))
-        regressor.compile(loss='mean_squared_error',
+        regressor.compile(loss='binary_crossentropy',
                           optimizer='rmsprop',
                           metrics=['accuracy'])
 
-        regressor.fit(x_train, y_train, epochs=100, batch_size=10,
-                      validation_split=0.1,
-                      callbacks=[EarlyStopping(monitor='val_acc', patience=50),
-                                 ModelCheckpoint(filepath=model_period,
-                                                 monitor='val_acc',
-                                                 save_best_only=True)])
+        regressor.fit_generator(train_gen, steps_per_epoch=len(train_gen),
+                                epochs=10, validation_data=test_gen,
+                                callbacks=[
+                                    EarlyStopping(monitor='val_loss',
+                                                  mode='min', patience=10),
+                                    ModelCheckpoint(filepath=model_period,
+                                                    monitor='val_acc',
+                                                    save_best_only=True)])
 
-        regressor.save(model_period)
+        # regressor.save(model_period)
 
 
 def main():
@@ -81,7 +81,7 @@ def main():
     parser.add_argument("--dataset", help="Dataset directory.",
                         default="../data/dowjones_calculated/periods.txt")
     parser.add_argument('--outdir', help='Model directory.',
-                        default='../model/LSTM/my_model1')
+                        default='../model/LSTM/my_model2')
     args = parser.parse_args()
 
     with open(args.dataset, "rb") as file:   # Unpickling
