@@ -31,12 +31,9 @@ def train(dataset, model_name, timestep=240):
     for i in range(len(dataset[0])):
         model_period = f"{model_name}_period{i}.h5"
         x_train = normalize_data(dataset[0][i][0])
-        y_train = dataset[0][i][1].values
+        y_train = get_one_hot(dataset[0][i][1].values, 2) * 1.0
         x_test = normalize_data(dataset[1][i][0])
-        y_test = dataset[1][5][1].values
-
-        y_train = get_one_hot(y_train, 2) * 1.0
-        y_test = get_one_hot(y_test, 2) * 1.0
+        y_test = get_one_hot(dataset[1][5][1].values, 2) * 1.0
 
         train_gen = TimeseriesGenerator(x_train, y_train,
                                         length=timestep, sampling_rate=1,
