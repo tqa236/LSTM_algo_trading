@@ -6,7 +6,8 @@ import argparse
 
 import pandas as pd
 
-from utils import calculate_class, calculate_log_returns, calculate_returns
+from utils import (calculate_absolute_class, calculate_class,
+                   calculate_log_returns, calculate_returns)
 
 
 def main():
@@ -25,14 +26,20 @@ def main():
     returns = calculate_returns(dataset)
     log_returns = calculate_log_returns(dataset)
     labels = calculate_class(returns)
+    absolute_labels = calculate_absolute_class(returns)
     log_labels = calculate_class(log_returns)
+    absolute_log_labels = calculate_absolute_class(log_returns)
     # returns = (returns - returns.mean()) / returns.std()
     print(f"Returns shape: {returns.shape}")
     print(f"Labels shape: {labels.shape}")
     returns.to_csv("../data/dowjones_calculated/returns1.csv")
     labels.to_csv("../data/dowjones_calculated/labels1.csv")
+    absolute_labels.to_csv("../data/dowjones_calculated/absolute_labels1.csv")
     log_returns.to_csv("../data/dowjones_calculated/log_returns1.csv")
     log_labels.to_csv("../data/dowjones_calculated/log_labels1.csv")
+    absolute_log_labels.to_csv(
+        "../data/dowjones_calculated/absolute_log_labels1.csv")
+
     print("Done.")
     return 0
 

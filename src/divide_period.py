@@ -26,21 +26,28 @@ def divide_period(returns, labels, train_length=750, test_length=250,
 
 def main():
     """Run main program."""
+    train_length = 2500
+    test_length = 250
+    timesteps = 240
     parser = argparse.ArgumentParser(
         description="Parse arguments for models.")
     parser.add_argument("--returns", help="Dataset directory.",
                         default="../data/dowjones_calculated/returns1.csv")
-    parser.add_argument("--labels", help="Dataset directory.",
-                        default="../data/dowjones_calculated/labels1.csv")
+    parser.add_argument(
+        "--labels", help="Dataset directory.",
+        default="../data/dowjones_calculated/absolute_labels1.csv")
     parser.add_argument('--outdir', help='Model directory.',
-                        default="../data/dowjones_calculated/periods1.txt")
+                        default=f"../data/dowjones_calculated/absolute_periods"
+                        f"{train_length}_{test_length}_{timesteps}.txt")
 
     args = parser.parse_args()
     returns = pd.read_csv(args.returns, index_col='Date',
                           parse_dates=['Date'])
     labels = pd.read_csv(args.labels, index_col='Date',
                          parse_dates=['Date'])
-    periods = divide_period(returns, labels, timesteps=240)
+
+    periods = divide_period(
+        returns, labels, train_length, test_length, timesteps)
     print("Training set")
     print(f"Returns shape for 1 period: {periods[0][0][0].shape}")
     print(f"Labels shape for 1 period: {periods[0][0][1].shape}")
