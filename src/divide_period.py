@@ -35,9 +35,9 @@ def main():
                         default="../data/dowjones_calculated/returns1.csv")
     parser.add_argument(
         "--labels", help="Dataset directory.",
-        default="../data/dowjones_calculated/absolute_labels1.csv")
+        default="../data/dowjones_calculated/labels1.csv")
     parser.add_argument('--outdir', help='Model directory.',
-                        default=f"../data/dowjones_calculated/absolute_periods"
+                        default=f"../data/dowjones_calculated/periods"
                         f"{train_length}_{test_length}_{timesteps}.txt")
 
     args = parser.parse_args()
