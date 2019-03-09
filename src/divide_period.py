@@ -26,7 +26,7 @@ def divide_period(returns, labels, train_length=750, test_length=250,
 
 def main():
     """Run main program."""
-    train_length = 2500
+    train_length = 750
     test_length = 250
     timesteps = 240
     parser = argparse.ArgumentParser(
