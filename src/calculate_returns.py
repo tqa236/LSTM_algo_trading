@@ -12,6 +12,8 @@ from utils import (calculate_absolute_class, calculate_class,
 
 def main():
     """Run main program."""
+    index = "dowjones"
+    index = "frankfurt"
     parser = argparse.ArgumentParser(
         description="Parse arguments for models.")
     parser.add_argument(
@@ -20,8 +22,12 @@ def main():
 
     parser.add_argument('--outdir', help='Model directory.',
                         default="../model/dowjones/sample.csv")
-    args = parser.parse_args()
-    dataset = pd.read_csv(args.indir, index_col='Date',
+    # args = parser.parse_args()
+    # dataset = pd.read_csv(args.indir,
+    #                       index_col='Date',
+    #                       parse_dates=['Date'])
+    dataset = pd.read_csv(f"../data/frankfurt_calculated/stocks.csv",
+                          index_col='Date',
                           parse_dates=['Date'])
     returns = calculate_returns(dataset)
     log_returns = calculate_log_returns(dataset)
@@ -32,13 +38,13 @@ def main():
     # returns = (returns - returns.mean()) / returns.std()
     print(f"Returns shape: {returns.shape}")
     print(f"Labels shape: {labels.shape}")
-    returns.to_csv("../data/dowjones_calculated/returns1.csv")
-    labels.to_csv("../data/dowjones_calculated/labels1.csv")
-    absolute_labels.to_csv("../data/dowjones_calculated/absolute_labels1.csv")
-    log_returns.to_csv("../data/dowjones_calculated/log_returns1.csv")
-    log_labels.to_csv("../data/dowjones_calculated/log_labels1.csv")
+    returns.to_csv(f"../data/{index}_calculated/returns1.csv")
+    labels.to_csv(f"../data/{index}_calculated/labels1.csv")
+    absolute_labels.to_csv(f"../data/{index}_calculated/absolute_labels1.csv")
+    log_returns.to_csv(f"../data/{index}_calculated/log_returns1.csv")
+    log_labels.to_csv(f"../data/{index}_calculated/log_labels1.csv")
     absolute_log_labels.to_csv(
-        "../data/dowjones_calculated/absolute_log_labels1.csv")
+        f"../data/{index}_calculated/absolute_log_labels1.csv")
 
     print("Done.")
     return 0

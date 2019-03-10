@@ -29,15 +29,17 @@ def main():
     train_length = 750
     test_length = 250
     timesteps = 240
+    index = "dowjones"
+    index = "frankfurt"
     parser = argparse.ArgumentParser(
         description="Parse arguments for models.")
     parser.add_argument("--returns", help="Dataset directory.",
-                        default="../data/dowjones_calculated/returns1.csv")
+                        default=f"../data/{index}_calculated/returns1.csv")
     parser.add_argument(
         "--labels", help="Dataset directory.",
-        default="../data/dowjones_calculated/labels1.csv")
+        default=f"../data/{index}_calculated/labels1.csv")
     parser.add_argument('--outdir', help='Model directory.',
-                        default=f"../data/dowjones_calculated/periods"
+                        default=f"../data/{index}_calculated/periods"
                         f"{train_length}_{test_length}_{timesteps}.txt")
 
     args = parser.parse_args()
