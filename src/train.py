@@ -9,13 +9,10 @@ import pickle
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 
-from keras.activations import softmax
 from keras.callbacks import EarlyStopping, ModelCheckpoint
-from keras.layers import LSTM, Dense, Lambda, Reshape
+from keras.layers import LSTM, Dense, Reshape
 from keras.models import Sequential
-from keras.preprocessing.sequence import TimeseriesGenerator
 from keras.utils import to_categorical
-from utils import normalize_data
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 # The GPU id to use, usually either "0" or "1";
@@ -119,10 +116,16 @@ def main():
     # index = "frankfurt"
     parser = argparse.ArgumentParser(
         description="Parse arguments for models.")
+    # parser.add_argument("--dataset", help="Dataset directory.",
+    #                     default=f"../data/{index}_calculated/"
+    #                     f"absolute_periods750_250_240.txt")
+    # parser.add_argument('--outdir', help='Model directory.',
+    #                     default=f'../model/LSTM/{index}2_absolute')
     parser.add_argument("--dataset", help="Dataset directory.",
-                        default=f"../data/{index}_calculated/periods.txt")
+                        default=f"../data/{index}_calculated/"
+                        f"periods750_250_240.txt")
     parser.add_argument('--outdir', help='Model directory.',
-                        default=f'../model/LSTM/{index}2')
+                        default=f'../model/LSTM/{index}2_')
     args = parser.parse_args()
 
     with open(args.dataset, "rb") as file:   # Unpickling
