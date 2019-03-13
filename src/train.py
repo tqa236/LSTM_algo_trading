@@ -25,7 +25,8 @@ def get_one_hot(targets, nb_classes):
     return res.reshape(list(targets.shape) + [nb_classes])
 
 
-def train_one_feature(dataset, model_name, timestep=240, feature=31):
+def train_one_feature(dataset, model_name, timestep=240, feature=31,
+                      dropout_level=0.1):
     """Train an LSTM model with 1 feature."""
     for i in range(len(dataset[0])):
         model_period = f"{model_name}_1feature_period{i}.h5"
@@ -37,7 +38,6 @@ def train_one_feature(dataset, model_name, timestep=240, feature=31):
         print(f"Period {i}")
         print(f"x train shape: {x_train.shape}")
         print(f"y train shape: {y_train.shape}")
-
         x_series = [x_train[i:i + timestep, j]
                     for i in range(x_train.shape[0] - timestep)
                     for j in range(feature)]
@@ -52,7 +52,9 @@ def train_one_feature(dataset, model_name, timestep=240, feature=31):
 
         # expected input data shape: (batch_size, timesteps, data_dim)
         regressor = Sequential()
-        regressor.add(LSTM(units=25, input_shape=(timestep, 1)))
+        regressor.add(LSTM(units=25, input_shape=(timestep, 1),
+                           dropout=dropout_level,
+                           recurrent_dropout=dropout_level))
         regressor.add(Dense(2, activation='softmax'))
         regressor.compile(loss='binary_crossentropy',
                           optimizer='rmsprop',
@@ -68,7 +70,7 @@ def train_one_feature(dataset, model_name, timestep=240, feature=31):
                                                  save_best_only=True)])
 
 
-def train(dataset, model_name, timestep=240, feature=31):
+def train(dataset, model_name, timestep=240, feature=31, dropout_level=0.1):
     """Train an LSTM model."""
     for i in range(len(dataset[0])):
         model_period = f"{model_name}_period{i}.h5"
@@ -92,7 +94,9 @@ def train(dataset, model_name, timestep=240, feature=31):
 
         # expected input data shape: (batch_size, timesteps, data_dim)
         regressor = Sequential()
-        regressor.add(LSTM(units=25, input_shape=(timestep, feature)))
+        regressor.add(LSTM(units=25, input_shape=(timestep, feature),
+                           dropout=dropout_level,
+                           recurrent_dropout=dropout_level))
         regressor.add(Dense(feature * 2, activation='relu'))
         regressor.add(Reshape((feature, 2)))
         regressor.add(Dense(2, activation='softmax'))
@@ -125,7 +129,7 @@ def main():
                         default=f"../data/{index}_calculated/"
                         f"periods750_250_240.txt")
     parser.add_argument('--outdir', help='Model directory.',
-                        default=f'../model/LSTM/{index}2_')
+                        default=f'../model/LSTM/{index}_drop0.1_')
     args = parser.parse_args()
 
     with open(args.dataset, "rb") as file:   # Unpickling
